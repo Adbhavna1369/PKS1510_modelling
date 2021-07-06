@@ -1,2 +1,2 @@
 # PKS1510_modelling
-This is my repository for my thesis 
+Code using agnpy for the modelling the FSRQ PKS 1510-1019
