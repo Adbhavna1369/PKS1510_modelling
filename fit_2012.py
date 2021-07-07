@@ -327,15 +327,15 @@ max_x = 1e30 * u.Hz
 sed.notice(min_x, max_x)
 
 logging.info("first fit iteration with only EED parameters thawed")
-#results_1 = time_function_call(fitter.fit)
-#print("fit succesful?", results_1.succeeded)
-#print(results_1.format())
+results_1 = time_function_call(fitter.fit)
+print("fit succesful?", results_1.succeeded)
+print(results_1.format())
 
 logging.info("second fit iteration with EED and blob parameters thawed")
 agnpy_ec.log10_B.thaw()
-#results_2 = time_function_call(fitter.fit)
-#print("fit succesful?", results_2.succeeded)
-#print(results_2.format())
+results_2 = time_function_call(fitter.fit)
+print("fit succesful?", results_2.succeeded)
+print(results_2.format())
 # plot final model without components
 nu = np.logspace(10, 30, 300)
 plt.errorbar(sed.x, sed.y.value, yerr=sed.get_error().value, marker=".", ls="")
@@ -347,20 +347,20 @@ plt.close()
 
 #logging.info(f"computing statistics profiles")
 final_stat = fitter.calc_stat()
-#for par in agnpy_ec.pars:
-    #if par.frozen == False:
-        #logging.info(f"computing statistics profile for {par.name}")
-        #proj = IntervalProjection()
-        #time_function_call(proj.calc, fitter, par)
-        #plt.axhline(1, ls="--", color="orange")
-        #plt.xlabel(par.name)
-        #plt.ylabel(r"$\Delta\chi^2$")
-        #plt.savefig(f"{fit_check_dir}/chi2_profile_parameter_{par.name}.png")
-        #plt.close()
+for par in agnpy_ec.pars:
+    if par.frozen == False:
+        logging.info(f"computing statistics profile for {par.name}")
+        proj = IntervalProjection()
+        time_function_call(proj.calc, fitter, par)
+        plt.axhline(1, ls="--", color="orange")
+        plt.xlabel(par.name)
+        plt.ylabel(r"$\Delta\chi^2$")
+        plt.savefig(f"{fit_check_dir}/chi2_profile_parameter_{par.name}.png")
+        plt.close()
 
-#logging.info(f"estimating errors with confidence intervals")
-#errors_2 = time_function_call(fitter.est_errors)
-#print(errors_2.format())
+logging.info(f"estimating errors with confidence intervals")
+errors_2 = time_function_call(fitter.est_errors)
+print(errors_2.format())
 
 
 logging.info("plot the final model with the individual components")
