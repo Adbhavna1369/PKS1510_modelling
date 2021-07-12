@@ -223,14 +223,15 @@ x = sed_table["nu"].to("Hz", equivalencies=u.spectral())
 y = sed_table["flux"].to("erg cm-2 s-1")
 y_err_stat = sed_table["flux_err_lo"].to("erg cm-2 s-1")
 # array of systematic errors, will just be summed in quadrature to the statistical error
-# we assume
-# - 15% on gamma-ray instruments
-# - 10% on lower waveband instruments
-y_err_syst = np.zeros(len(x))
-gamma = x > (0.1 * u.GeV).to("Hz", equivalencies=u.spectral())
-y_err_syst[gamma] = 0.10
-y_err_syst[~gamma] = 0.05
+
+gamma_above_100GeV = x > (100 * u.GeV).to("Hz", equivalencies=u.spectral())
+gamma_under_1GeV= x < (1* u.GeV).to("Hz", equivalencies=u.spectral()) 
+gamma_under_100GeV = (gamma_under_1GeV) * (gamma_above_100GeV)
+y_err_syst[gamma_above_100GeV] = 0.20
+y_err_syst[gamma_under_100GeV] = 0.10
+y_err_syst[gamma_under_1GeV] = 0.05
 y_err_syst = y * y_err_syst
+
 # remove the points with orders of magnitude smaller error, they are upper limits
 UL = y_err_stat < (y * 1e-3)
 x = x[~UL]
@@ -303,10 +304,10 @@ agnpy_ec.t_var.freeze()
 agnpy_ec.log10_r = np.log10(r.to_value("cm"))
 agnpy_ec.log10_r.freeze()
 # - EED
-agnpy_ec.log10_k_e = np.log10(0.09)
-agnpy_ec.p1 = 1.8
-agnpy_ec.p2 = 3.5
-agnpy_ec.log10_gamma_b = np.log10(500)
+agnpy_ec.log10_k_e = np.log10(0.08)
+agnpy_ec.p1 = 2.1
+agnpy_ec.p2 = 4
+agnpy_ec.log10_gamma_b = np.log10(150)
 agnpy_ec.log10_gamma_min = np.log10(1)
 agnpy_ec.log10_gamma_min.freeze()
 agnpy_ec.log10_gamma_max = np.log10(3e4)
@@ -481,7 +482,7 @@ ax.errorbar(
     marker=".",
     ls="",
     color="k",
-    label="PKS 1510-089, Ahnen et al. (2017), period B",
+    label="PKS 1510-089, lowstate",
 )
 ax.set_xlabel(sed_x_label)
 ax.set_ylabel(sed_y_label)
