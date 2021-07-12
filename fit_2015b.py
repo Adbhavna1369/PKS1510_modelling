@@ -1,5 +1,4 @@
 
-# general modules
 import logging
 #import pkg_resources
 from pathlib import Path
@@ -33,6 +32,48 @@ from sherpa.plot import IntervalProjection
 mec2 = m_e.to("erg", equivalencies=u.mass_energy())
 gamma_size = 400
 gamma_to_integrate = np.logspace(0, 7, gamma_size)
+
+# quick utils functions for the scripts in agnpy_paper
+import numpy as np
+import astropy.units as u
+import time
+import logging
+
+
+logging.basicConfig(
+    format="%(levelname)s:%(asctime)s %(message)s",
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+    level=logging.INFO,
+)
+
+
+def time_function_call(func, *args, **kwargs):
+    """Execute a function call, time it and return the normal output expected
+    from the function."""
+    t_start = time.perf_counter()
+    val = func(*args, **kwargs)
+    t_stop = time.perf_counter()
+    delta_t = t_stop - t_start
+    logging.info(f"elapsed time {func} call: {delta_t:.3f} s")
+    if len(args) != 0:
+        # if the first argument is an array of quantitites
+        if isinstance(args[0], u.Quantity) and isinstance(args[0], np.ndarray):
+            logging.info(f"computed over a grid of {len(args[0])} points")
+    return val
+
+
+def reproduce_sed(dataset, process, nu_range):
+    """function to reproduce the SED data in a given reference dataset"""
+    # reference SED
+    sed_data = np.loadtxt(dataset, delimiter=",")
+    nu_ref = sed_data[:, 0] * u.Hz
+    # apply the comparison range
+    comparison = (nu_ref >= nu_range[0]) * (nu_ref <= nu_range[-1])
+    nu_ref = nu_ref[comparison]
+    sed_ref = sed_data[:, 1][comparison] * u.Unit("erg cm-2 s-1")
+    # compute the sed with agnpy on the same frequencies, time it also
+    sed_agnpy = time_function_call(process.sed_flux, nu_ref)
+    return nu_ref, sed_ref, sed_agnpy
 
 
 class AgnpyEC(model.RegriddableModel1D):
@@ -223,13 +264,13 @@ x = sed_table["nu"].to("Hz", equivalencies=u.spectral())
 y = sed_table["flux"].to("erg cm-2 s-1")
 y_err_stat = sed_table["flux_err_lo"].to("erg cm-2 s-1")
 # array of systematic errors, will just be summed in quadrature to the statistical error
-# we assume
-# - 15% on gamma-ray instruments
-# - 10% on lower waveband instruments
 y_err_syst = np.zeros(len(x))
-gamma = x > (0.1 * u.GeV).to("Hz", equivalencies=u.spectral())
-y_err_syst[gamma] = 0.10
-y_err_syst[~gamma] = 0.05
+gamma_above_100GeV = x > (100 * u.GeV).to("Hz", equivalencies=u.spectral())
+gamma_under_1GeV= x < (1* u.GeV).to("Hz", equivalencies=u.spectral()) 
+gamma_under_100GeV = (gamma_under_1GeV) * (gamma_above_100GeV)
+y_err_syst[gamma_above_100GeV] = 0.20
+y_err_syst[gamma_under_100GeV] = 0.10
+y_err_syst[gamma_under_1GeV] = 0.05
 y_err_syst = y * y_err_syst
 # remove the points with orders of magnitude smaller error, they are upper limits
 UL = y_err_stat < (y * 1e-3)
@@ -327,15 +368,15 @@ max_x = 1e30 * u.Hz
 sed.notice(min_x, max_x)
 
 logging.info("first fit iteration with only EED parameters thawed")
-#results_1 = time_function_call(fitter.fit)
-#print("fit succesful?", results_1.succeeded)
-#print(results_1.format())
+results_1 = time_function_call(fitter.fit)
+print("fit succesful?", results_1.succeeded)
+print(results_1.format())
 
 logging.info("second fit iteration with EED and blob parameters thawed")
 agnpy_ec.log10_B.thaw()
-#results_2 = time_function_call(fitter.fit)
-#print("fit succesful?", results_2.succeeded)
-#print(results_2.format())
+results_2 = time_function_call(fitter.fit)
+print("fit succesful?", results_2.succeeded)
+print(results_2.format())
 # plot final model without components
 nu = np.logspace(10, 30, 300)
 plt.errorbar(sed.x, sed.y.value, yerr=sed.get_error().value, marker=".", ls="")
@@ -343,25 +384,30 @@ plt.loglog(nu, agnpy_ec(nu))
 plt.xlabel(sed_x_label)
 plt.ylabel(sed_y_label)
 plt.savefig(f"{fit_check_dir}/best_fit.png")
+plt.show()
+"""
 plt.close()
+
 
 #logging.info(f"computing statistics profiles")
 final_stat = fitter.calc_stat()
-#for par in agnpy_ec.pars:
-    #if par.frozen == False:
-        #logging.info(f"computing statistics profile for {par.name}")
-        #proj = IntervalProjection()
-        #time_function_call(proj.calc, fitter, par)
-        #plt.axhline(1, ls="--", color="orange")
-        #plt.xlabel(par.name)
-        #plt.ylabel(r"$\Delta\chi^2$")
-        #plt.savefig(f"{fit_check_dir}/chi2_profile_parameter_{par.name}.png")
-        #plt.close()
+#logging.info(f"computing statistics profiles")
+final_stat = fitter.calc_stat()
+for par in agnpy_ec.pars:
+    if par.frozen == False:
+        logging.info(f"computing statistics profile for {par.name}")
+        proj = IntervalProjection()
+        time_function_call(proj.calc, fitter, par)
+        plt.axhline(1, ls="--", color="orange")
+        plt.xlabel(par.name)
+        plt.ylabel(r"$\Delta\chi^2$")
+        plt.savefig(f"{fit_check_dir}/chi2_profile_parameter_{par.name}.png")
+        plt.close()
 
-#logging.info(f"estimating errors with confidence intervals")
-#errors_2 = time_function_call(fitter.est_errors)
-#print(errors_2.format())
-
+logging.info(f"estimating errors with confidence intervals")
+errors_2 = time_function_call(fitter.est_errors)
+print(errors_2.format())
+"""
 
 logging.info("plot the final model with the individual components")
 # plot the best fit model with the individual components
@@ -481,7 +527,7 @@ ax.errorbar(
     marker=".",
     ls="",
     color="k",
-    label="PKS 1510-089, Ahnen et al. (2017), period B",
+    label="PKS 1510-089, period B",
 )
 ax.set_xlabel(sed_x_label)
 ax.set_ylabel(sed_y_label)
