@@ -355,7 +355,7 @@ agnpy_ec.p2 = 4
 agnpy_ec.log10_gamma_b = np.log10(150)
 agnpy_ec.log10_gamma_min = np.log10(1)
 agnpy_ec.log10_gamma_min.freeze()
-agnpy_ec.log10_gamma_max = np.log10(4e4)
+agnpy_ec.log10_gamma_max = np.log10(3e4)
 agnpy_ec.log10_gamma_max.freeze()
 
 # plot final model without components
