@@ -390,3 +390,155 @@ for d in dirs:
         plt.ylabel(sed_y_label)
         #plt.savefig(f"{fit_check_dir}/best_fit.png")
         plt.show()
+
+        
+        #logging.info(f"computing statistics profiles")
+        final_stat = fitter.calc_stat()
+        #logging.info(f"computing statistics profiles")
+        final_stat = fitter.calc_stat()
+        for par in agnpy_ec.pars:
+            if par.frozen == False:
+                logging.info(f"computing statistics profile for {par.name}")
+                proj = IntervalProjection()
+                time_function_call(proj.calc, fitter, par)
+                plt.axhline(1, ls="--", color="orange")
+                plt.xlabel(par.name)
+                plt.ylabel(r"$\Delta\chi^2$")
+                plt.savefig(f"{fit_check_dir}/chi2_profile_parameter_{par.name}.png")
+                plt.close()
+
+        logging.info(f"estimating errors with confidence intervals")
+        errors_2 = time_function_call(fitter.est_errors)
+        print(errors_2.format())
+
+
+        logging.info("plot the final model with the individual components")
+        # plot the best fit model with the individual components
+        k_e = 10 ** agnpy_ec.log10_k_e.val * u.Unit("cm-3")
+        p1 = agnpy_ec.p1.val
+        p2 = agnpy_ec.p2.val
+        gamma_b = 10 ** agnpy_ec.log10_gamma_b.val
+        gamma_min = 10 ** agnpy_ec.log10_gamma_min.val
+        gamma_max = 10 ** agnpy_ec.log10_gamma_max.val
+        B = 10 ** agnpy_ec.log10_B.val * u.G
+        r = 10 ** agnpy_ec.log10_r.val * u.cm
+        delta_D = agnpy_ec.delta_D.val
+        R_b = c.to_value("cm s-1") * agnpy_ec.t_var.val * delta_D / (1 + z) * u.cm
+        # blob definition
+        parameters = {
+            "p1": p1,
+            "p2": p2,
+            "gamma_b": gamma_b,
+            "gamma_min": gamma_min,
+            "gamma_max": gamma_max,
+        }
+        spectrum_dict = {"type": "BrokenPowerLaw", "parameters": parameters}
+        blob = Blob(
+            R_b,
+            z,
+            delta_D,
+            Gamma,
+            B,
+            k_e,
+            spectrum_dict,
+            spectrum_norm_type="differential",
+            gamma_size=500,
+        )
+        print(blob)
+        print("jet power in particles", blob.P_jet_e)
+        print("jet power in B", blob.P_jet_B)
+
+        # Disk and DT definition
+        L_disk = 10 ** agnpy_ec.log10_L_disk.val * u.Unit("erg s-1")
+        M_BH = 10 ** agnpy_ec.log10_M_BH.val * u.Unit("g")
+        m_dot = agnpy_ec.m_dot.val * u.Unit("g s-1")
+        eta = (L_disk / (m_dot * c ** 2)).to_value("")
+        R_in = agnpy_ec.R_in.val * u.cm
+        R_out = agnpy_ec.R_out.val * u.cm
+        disk = SSDisk(M_BH, L_disk, eta, R_in, R_out)
+        dt = RingDustTorus(L_disk, xi_dt, T_dt, R_dt=R_dt)
+
+        # radiative processes
+        synch = Synchrotron(blob, ssa=True)
+        ssc = SynchrotronSelfCompton(blob, synch)
+        ec_dt = ExternalCompton(blob, dt, r)
+        # SEDs
+        nu = np.logspace(9, 27, 200) * u.Hz
+        synch_sed = synch.sed_flux(nu)
+        ssc_sed = ssc.sed_flux(nu)
+        ec_dt_sed = ec_dt.sed_flux(nu)
+        disk_bb_sed = disk.sed_flux(nu, z)
+        dt_bb_sed = dt.sed_flux(nu, z)
+        total_sed = synch_sed + ssc_sed + ec_dt_sed + disk_bb_sed + dt_bb_sed
+
+        load_mpl_rc()
+        #plt.rcParams["text.usetex"] = True
+        fig, ax = plt.subplots()
+        ax.loglog(
+            nu / (1 + z), total_sed, ls="-", lw=2.1, color="crimson", label="agnpy, total"
+        )
+        ax.loglog(
+            nu / (1 + z),
+            ec_dt_sed,
+            ls="--",
+            lw=1.3,
+            color="dodgerblue",
+            label="agnpy, EC on DT",
+        )
+        ax.loglog(
+            nu / (1 + z),
+            synch_sed,
+            ls="--",
+            lw=1.3,
+            color="goldenrod",
+            label="agnpy, synchrotron",
+        )
+        ax.loglog(
+            nu / (1 + z), ssc_sed, ls="--", lw=1.3, color="lightseagreen", label="agnpy, SSC"
+        )
+        ax.loglog(
+            nu / (1 + z),
+            disk_bb_sed,
+            ls="-.",
+            lw=1.3,
+            color="dimgray",
+            label="agnpy, disk blackbody",
+        )
+        ax.loglog(
+            nu / (1 + z),
+            dt_bb_sed,
+            ls=":",
+            lw=1.3,
+            color="dimgray",
+            label="agnpy, DT blackbody",
+        )
+        # systematics error in gray
+        ax.errorbar(
+            x.to("Hz", equivalencies=u.spectral()).value,
+            y.value,
+            yerr=y_err_syst.value,
+            marker=",",
+            ls="",
+            color="gray",
+            label="",
+        )
+        # statistics error in black
+        ax.errorbar(
+            x.to("Hz", equivalencies=u.spectral()).value,
+            y.value,
+            yerr=y_err_stat.value,
+            marker=".",
+            ls="",
+            color="k",
+            label="PKS 1510-089, period B",
+        )
+        ax.set_xlabel(sed_x_label)
+        ax.set_ylabel(sed_y_label)
+        ax.set_xlim([1e9, 1e29])
+        ax.set_ylim([10 ** (-13.5), 10 ** (-7.5)])
+        ax.legend(
+            loc="upper center", fontsize=10, ncol=2,
+        )
+        plt.show()
+        #fig.savefig("figures/figure_7_gammapy_fit.png")
+        #fig.savefig("figures/figure_7_gammapy_fit.pdf")
