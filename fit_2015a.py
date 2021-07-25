@@ -534,7 +534,6 @@ ax.legend(
     loc="upper center", fontsize=9, ncol=2,
 )
 plt.show()
-#fig.savefig("figures/figure_7_gammapy_fit.png")
-#fig.savefig("figures/figure_7_gammapy_fit.pdf")
+
 
   
