@@ -28,7 +28,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-So, to perform the fit of the 2012 adjusting some of the initial parameters (the ones specified in the help command)
+So, to perform the fit of the 2012 state adjusting some of the initial parameters (the ones specified in the help command)
 ```shell
 python make.py fit --state 2012 --k_e 0.01 --gamma_min 3 --gamma_max 7e4
 ```
@@ -39,6 +39,6 @@ All the states can be plotted together, after they have all been fitted, via the
 ```shell
 $ python make.py plot 
 ```
-you should obtain a plot liek this
+you should obtain a plot like this
 
 ![](results/sed_all_states.png)
