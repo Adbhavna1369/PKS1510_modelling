@@ -65,7 +65,13 @@ def write_parameters_to_yaml(agnpy_model, path):
     """write the model parameters in a yaml file"""
     parameters = dict()
     for par in agnpy_model.pars:
-        parameters[par.name] = float(par.val)
+        if par.name.startswith("log10_"):
+            # store the power of 10 of logarithmic quantities
+            # - strip the log10 prefix and elevate to the powe of 10
+            name = par.name.split("log10_")[1]
+            parameters[name] = float(f"{10**par.val:.3e}")
+        else:
+            parameters[par.name] = float(f"{par.val:.3e}")
     yaml.dump(parameters, Path(path))
 
 
