@@ -263,21 +263,30 @@ sed_table = Table.read(sed_path)
 x = sed_table["nu"].to("Hz", equivalencies=u.spectral())
 y = sed_table["flux"].to("erg cm-2 s-1")
 y_err_stat = sed_table["flux_err_lo"].to("erg cm-2 s-1")
+
+
 # array of systematic errors, will just be summed in quadrature to the statistical error
 y_err_syst = np.zeros(len(x))
-gamma_above_100GeV = x > (100 * u.GeV).to("Hz", equivalencies=u.spectral())
-gamma_under_1GeV= x < (1* u.GeV).to("Hz", equivalencies=u.spectral()) 
-gamma_under_100GeV = (gamma_under_1GeV) * (gamma_above_100GeV)
-y_err_syst[gamma_above_100GeV] = 0.30
-y_err_syst[gamma_under_100GeV] = 0.10
-y_err_syst[gamma_under_1GeV] = 0.05
-y_err_syst = y * y_err_syst
-# remove the points with orders of magnitude smaller error, they are upper limits
-UL = y_err_stat < (y * 1e-3)
-x = x[~UL]
-y = y[~UL]
-y_err_stat = y_err_stat[~UL]
-y_err_syst = y_err_syst[~UL]
+nu_vhe = (100 * u.GeV).to("Hz", equivalencies=u.spectral())
+    nu_he = (0.1 * u.GeV).to("Hz", equivalencies=u.spectral())
+    nu_x_ray_max = (300 * u.keV).to("Hz", equivalencies=u.spectral())
+    nu_x_ray_min = (0.3 * u.keV).to("Hz", equivalencies=u.spectral())
+    vhe_gamma = x >= nu_vhe
+    he_gamma = (x >= nu_he) * (x < nu_vhe)
+    x_ray = (x >= nu_x_ray_min) * (x < nu_x_ray_max)
+    uv_to_radio = x < nu_x_ray_min
+    # declare systematics
+    y_err_syst[vhe_gamma] = 0.30
+    y_err_syst[he_gamma] = 0.10
+    y_err_syst[x_ray] = 0.10
+    y_err_syst[uv_to_radio] = 0.05
+    y_err_syst = y * y_err_syst
+    # remove the points with orders of magnitude smaller error, they are upper limits
+    UL = y_err_stat < (y * 1e-3)
+    x = x[~UL]
+    y = y[~UL]
+    y_err_stat = y_err_stat[~UL]
+    y_err_syst = y_err_syst[~UL]
 # define the data1D object containing it
 sed = data.Data1D("sed", x, y, staterror=y_err_stat, syserror=y_err_syst)
 
@@ -306,7 +315,7 @@ T_dt = 1e3 * u.K
 R_dt = 6.47 * 1e18 * u.cm
 # size and location of the emission region
 t_var = 0.5 * u.d
-r = 6e17 * u.cm
+r = 6.5e17 * u.cm
 # instance of the model wrapping angpy functionalities
 # - AGN parameters
 # -- distances
@@ -346,11 +355,11 @@ agnpy_ec.log10_r.freeze()
 # - EED
 agnpy_ec.log10_k_e = np.log10(0.1)
 agnpy_ec.p1 = 1.8
-agnpy_ec.p2 = 3.5
-agnpy_ec.log10_gamma_b = np.log10(800)
+agnpy_ec.p2 = 3.85
+agnpy_ec.log10_gamma_b = np.log10(900)
 agnpy_ec.log10_gamma_min = np.log10(1)
 agnpy_ec.log10_gamma_min.freeze()
-agnpy_ec.log10_gamma_max = np.log10(4e4)
+agnpy_ec.log10_gamma_max = np.log10(5e4)
 agnpy_ec.log10_gamma_max.freeze()
 
 
