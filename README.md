@@ -35,10 +35,17 @@ python make.py fit --state 2012 --k_e 0.01 --gamma_min 3 --gamma_max 7e4
 in the directory `results` a directory per each state will be created, containing the plot of the fitted SED and a dicitonary, a `.yaml` file, containing all the model parameters.
 
 ### Plotting
-All the states can be plotted together, after they have all been fitted, via the command
+
+After performing the fit, SED and best-fit model can be plotted via the command
 ```shell
-$ python make.py plot 
+$ python make.py plot --state 2015a
 ```
 you should obtain a plot like this
+![](results/sed_2015a.png)
 
+To plot all the SED together, use
+```shell
+$ python make.py plot --state all
+```
+you should obtain a plot like this
 ![](results/sed_all_states.png)
