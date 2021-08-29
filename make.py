@@ -1,7 +1,7 @@
 import click
 import logging
 from fitting import fit_state
-from plotting import plot_sed_all_states
+from plotting import plot_sed_all_states, plot_sed_state
 
 logging.basicConfig(
     format="%(levelname)s:%(asctime)s %(message)s",
@@ -30,9 +30,16 @@ def fit(state, k_e, gamma_min, gamma_max, t_var, r):
 
 
 @click.command("plot")
-def plot():
-    """plot all the fitted SEDs together"""
-    plot_sed_all_states()
+@click.option(
+    "--state",
+    type=click.Choice(["low", "2012", "2015a", "2015b", "all"], case_sensitive=True),
+)
+def plot(state):
+    """plot the fitted SED together, if 'all' is passed will print all the states with their respective SEDs together"""
+    if state == "all":
+        plot_sed_all_states()
+    else:
+        plot_sed_state(state)
 
 
 # add the commands
