@@ -21,8 +21,8 @@ load_mpl_rc()
 def plot_sed_all_states():
     """plot all SEDs at ones"""
     log.info("plotting all the states together")
-    colors = ["k", "navy", "dodgerblue", "mediumaquamarine"]
-    states = ["low", "2012", "2015a", "2015b"]
+    colors = ["k", "navy", "dodgerblue", "mediumaquamarine","red", "pink"]
+    states = ["low", "2012", "2015a", "2015b", "hess_2016", "magic_2016"]
     # define figure
     fig, ax = plt.subplots()
     for state, color in zip(states, colors):
