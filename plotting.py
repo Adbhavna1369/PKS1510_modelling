@@ -89,7 +89,7 @@ def plot_sed_state(state):
     # load parameters
     pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
     main_dir = Path(__file__).parent
-    pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
+    #pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
     k_e = pars["k_e"] * u.Unit("cm-3")
     p1 = pars["p1"]
     p2 = pars["p2"]
