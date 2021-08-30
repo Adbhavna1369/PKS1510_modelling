@@ -17,7 +17,7 @@ def cli():
 
 @click.command("fit")
 @click.option(
-    "--state", type=click.Choice(["low", "2012", "2015a", "2015b"], case_sensitive=True)
+    "--state", type=click.Choice(["low", "2012", "2015a", "2015b","hess_2016","magic_2016"], case_sensitive=True)
 )
 @click.option("--k_e", default=1e-2, type=float, help="electron normalisation")
 @click.option("--gamma_min", default=1, type=float, help="minimum Lorentz factor")
