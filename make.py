@@ -32,7 +32,7 @@ def fit(state, k_e, gamma_min, gamma_max, t_var, r):
 @click.command("plot")
 @click.option(
     "--state",
-    type=click.Choice(["low", "2012", "2015a", "2015b", "all"], case_sensitive=True),
+    type=click.Choice(["low", "2012", "2015a", "2015b", "hess_2016", "magic_2016", "all"], case_sensitive=True),
 )
 def plot(state):
     """plot the fitted SED together, if 'all' is passed will print all the states with their respective SEDs together"""
