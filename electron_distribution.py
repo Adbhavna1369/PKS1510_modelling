@@ -52,4 +52,4 @@ ax.legend(
         loc="upper center", fontsize=10, ncol=2,
     )
     Path("results").mkdir(exist_ok=True)
-fig.savefig(f"results/electron_distribution_{state}.png")
+fig.savefig(f"results/electron_distribution_all.png")
