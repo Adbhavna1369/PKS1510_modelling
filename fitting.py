@@ -48,8 +48,8 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
     T_dt = 1e3 * u.K
     R_dt = 6.47 * 1e18 * u.cm
     # size and location of the emission region
-    t_var *= u.d
-    r *= u.cm
+    t_var = 0.5* u.d
+    r = 7e18 * u.cm
     # instance of the model wrapping angpy functionalities
     # - AGN parameters
     # -- distances
@@ -79,22 +79,22 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
     agnpy_ec.delta_D = delta_D
     agnpy_ec.delta_D.freeze()
     agnpy_ec.log10_B = np.log10(B.to_value("G"))
-    # agnpy_ec.log10_B.freeze()
+    agnpy_ec.log10_B.freeze()
     agnpy_ec.mu_s = mu_s
     agnpy_ec.mu_s.freeze()
     agnpy_ec.t_var = (t_var).to_value("s")
-    agnpy_ec.t_var.freeze()
+    #agnpy_ec.t_var.freeze()
     agnpy_ec.log10_r = np.log10(r.to_value("cm"))
-    # agnpy_ec.log10_r.freeze()
+    agnpy_ec.log10_r.freeze()
     # - EED
     agnpy_ec.log10_k_e = np.log10(k_e)
     agnpy_ec.p1 = 1.8
-    agnpy_ec.p2 = 3.85
+    agnpy_ec.p2 = 3.5
     agnpy_ec.log10_gamma_b = np.log10(900)
-    agnpy_ec.log10_gamma_min = np.log10(gamma_min)
+    agnpy_ec.log10_gamma_min = np.log10(1)
     agnpy_ec.log10_gamma_min.freeze()
     agnpy_ec.log10_gamma_max = np.log10(gamma_max)
-    agnpy_ec.log10_gamma_max.freeze()
+    #agnpy_ec.log10_gamma_max.freeze()
     print(agnpy_ec)
 
     log.info("plotting the initial model (before fit)")
@@ -108,8 +108,8 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
 
     logging.info("performing the fit")
     # directory to store the checks performed on the fit
-    results_dir = f"results/{state}"
-    Path(results_dir).mkdir(parents=True, exist_ok=True)
+    results_fixed_dir = f"results_fixed/{state}"
+    Path(results_fixed_dir).mkdir(parents=True, exist_ok=True)
     # fit using the Levenberg-Marquardt optimiser
     fitter = Fit(sed, agnpy_ec, stat=Chi2(), method=LevMar())
     # choose minimum and maximum energy to fit
@@ -134,6 +134,6 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
     ax.set_xlabel(sed_x_label)
     ax.set_ylabel(sed_y_label)
     plt.show()
-    fig.savefig(f"{results_dir}/best_fit_sed.png")
+    fig.savefig(f"{results_fixed_dir}/best_fit_sed.png")
 
-    write_parameters_to_yaml(agnpy_ec, f"{results_dir}/parameters.yaml")
+    write_parameters_to_yaml(agnpy_ec, f"{results_fixed_dir}/parameters.yaml")
