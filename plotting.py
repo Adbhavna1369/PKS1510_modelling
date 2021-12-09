@@ -21,8 +21,8 @@ load_mpl_rc()
 def plot_sed_all_states():
     """plot all SEDs at ones"""
     log.info("plotting all the states together")
-    colors = ["k", "navy", "dodgerblue", "mediumaquamarine"]
-    states = ["low", "2012", "2015a", "2015b"]
+    colors = ["k", "navy", "dodgerblue", "mediumaquamarine","red", "pink"]
+    states = ["low", "2012", "2015a", "2015b", "hess_2016", "magic_2016"]
     # define figure
     fig, ax = plt.subplots()
     for state, color in zip(states, colors):
@@ -30,7 +30,7 @@ def plot_sed_all_states():
         main_dir = Path(__file__).parent
         sed = load_sed_data(f"{main_dir}/data/PKS1510-089_sed_{state}.ecsv")
         # load dictionary
-        pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
+        pars = yaml.load(Path(f"{main_dir}/results_fixed/{state}/parameters.yaml"))
         # create model
         agnpy_ec = AgnpyEC()
         agnpy_ec.z = pars["z"]
@@ -74,9 +74,9 @@ def plot_sed_all_states():
     ax.set_xlim([1e8, 1e28])
     ax.set_xlabel(sed_x_label)
     ax.set_ylabel(sed_y_label)
-    ax.legend()
+    ax.legend(loc=2,fontsize="xx-small")
     plt.show()
-    fig.savefig(f"{main_dir}/results/sed_all_states.png")
+    fig.savefig(f"{main_dir}/results_fixed/sed_all_states.png")
 
 
 def plot_sed_state(state):
@@ -87,9 +87,9 @@ def plot_sed_state(state):
     # load sed
     sed = load_sed_data(f"{main_dir}/data/PKS1510-089_sed_{state}.ecsv")
     # load parameters
-    pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
+    pars = yaml.load(Path(f"{main_dir}/results_fixed/{state}/parameters.yaml"))
     main_dir = Path(__file__).parent
-    pars = yaml.load(Path(f"{main_dir}/results/{state}/parameters.yaml"))
+    #pars = yaml.load(Path(f"{main_dir}/results_fixed/{state}/parameters.yaml"))
     k_e = pars["k_e"] * u.Unit("cm-3")
     p1 = pars["p1"]
     p2 = pars["p2"]
@@ -209,5 +209,5 @@ def plot_sed_state(state):
     ax.legend(
         loc="upper center", fontsize=10, ncol=2,
     )
-    Path("results").mkdir(exist_ok=True)
-    fig.savefig(f"results/sed_{state}.png")
+    Path("results_fixed").mkdir(exist_ok=True)
+    fig.savefig(f"results_fixed/sed_{state}.png")

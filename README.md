@@ -16,10 +16,10 @@ Pass the options `--help` when in doubt
 $ python make.py fit --help
 Usage: make.py fit [OPTIONS]
 
-  perform the fit of PKS 1510-089 SED for a given state
+  Perform the fit of PKS 1510-089 SED for a given state
 
 Options:
-  --state [low|2012|2015a|2015b]
+  --state [low|2012|2015a|2015b|hess_2016|magic_2016]
   --k_e FLOAT                     electron normalisation
   --gamma_min FLOAT               minimum Lorentz factor
   --gamma_max FLOAT               maximum Lorentz factor
