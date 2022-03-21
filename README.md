@@ -1,10 +1,19 @@
 # PKS1510_modelling
-Code using agnpy for the modelling the FSRQ PKS 1510-1019
+Code using `agnpy` for the modelling the FSRQ PKS 1510-1019
 
 ## Basic usage
-
 Basic functionalities are wrapped via [click](https://click.palletsprojects.com/en/8.0.x/).
 Two commands are available 
+
+## Environment
+Added an environment installing all the dependencies needed to run the analysis.
+```shell
+conda env create -f environment.yml
+```
+a `pks1510-modelling` `conda` environment will be created. To activate it:
+```shell
+source activate pks1510-modelling
+```
 
 ### fitting
 You can fit a particulare state via the command
@@ -35,7 +44,6 @@ python make.py fit --state 2012 --k_e 0.01 --gamma_min 3 --gamma_max 7e4
 in the directory `results` a directory per each state will be created, containing the plot of the fitted SED and a dicitonary, a `.yaml` file, containing all the model parameters.
 
 ### Plotting
-
 After performing the fit, SED and best-fit model can be plotted via the command
 ```shell
 $ python make.py plot --state 2015a
