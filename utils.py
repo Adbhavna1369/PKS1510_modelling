@@ -67,7 +67,7 @@ def write_parameters_to_yaml(agnpy_model, path):
     for par in agnpy_model.pars:
         if par.name.startswith("log10_"):
             # store the power of 10 of logarithmic quantities
-            # - strip the log10 prefix and elevate to the powe of 10
+            # - strip the log10 prefix and elevate to the power of 10
             name = par.name.split("log10_")[1]
             parameters[name] = float(f"{10**par.val:.3e}")
         else:

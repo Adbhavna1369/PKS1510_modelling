@@ -18,7 +18,7 @@ from utils import load_sed_data, write_parameters_to_yaml, AgnpyEC
 log = logging.getLogger(__name__)
 
 
-def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
+def fit_state(state, k_e, gamma_min, gamma_max, t_var, r , p1, p2 , gamma_b ):
     """fit one of the states of PKS 1510-089"""
     log.info(f"fitting PKS 1510-089 {state} state")
     # load the data in a sherpa 1D object
@@ -49,7 +49,7 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
     R_dt = 6.47 * 1e18 * u.cm
     # size and location of the emission region
     t_var = 0.5* u.d
-    r = 7e18 * u.cm
+    r = 6e18 * u.cm
     # instance of the model wrapping angpy functionalities
     # - AGN parameters
     # -- distances
@@ -88,10 +88,10 @@ def fit_state(state, k_e, gamma_min, gamma_max, t_var, r):
     agnpy_ec.log10_r.freeze()
     # - EED
     agnpy_ec.log10_k_e = np.log10(k_e)
-    agnpy_ec.p1 = 1.8
-    agnpy_ec.p2 = 3.5
-    agnpy_ec.log10_gamma_b = np.log10(900)
-    agnpy_ec.log10_gamma_min = np.log10(1)
+    agnpy_ec.p1 = p1
+    agnpy_ec.p2 = p2
+    agnpy_ec.log10_gamma_b = np.log10(gamma_b)
+    agnpy_ec.log10_gamma_min = np.log10(gamma_min)
     agnpy_ec.log10_gamma_min.freeze()
     agnpy_ec.log10_gamma_max = np.log10(gamma_max)
     #agnpy_ec.log10_gamma_max.freeze()

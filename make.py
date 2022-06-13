@@ -24,9 +24,12 @@ def cli():
 @click.option("--gamma_max", default=5e4, type=float, help="maximum Lorentz factor")
 @click.option("--t_var", default=0.5, type=float, help="variability time scale")
 @click.option("--r", default=6e17, type=float, help="distance of blob from BH")
-def fit(state, k_e, gamma_min, gamma_max, t_var, r):
+@click.option("--gamma_b", default=300, type=float, help="break Lorentz factor")
+@click.option("--p1", default=2, type=float, help="p1")
+@click.option("--p2", default=3, type=float, help="p2")
+def fit(state, k_e, gamma_min, gamma_max, t_var, r , gamma_b, p1, p2):
     """perform the fit of PKS 1510-089 SED for a given state"""
-    fit_state(state, k_e, gamma_min, gamma_max, t_var, r)
+    fit_state(state, k_e, gamma_min, gamma_max, t_var, r , gamma_b, p1, p2)
 
 
 @click.command("plot")
