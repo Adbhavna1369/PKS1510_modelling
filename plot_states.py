@@ -27,19 +27,8 @@ dict_list = [
         "label": "Flare 2015b",
         "marker": ".",
         "color": "crimson",
-    },
-    {
-        "file": "/home/pc/PKS1510_modelling/data/PKS1510-089_sed_hess_2016.ecsv",
-        "label": "2016 HESS",
-        "marker": "--",
-        "color": "teal",
-    },
-    {
-        "file": "/home/pc/PKS1510_modelling/data/PKS1510-089_sed_magic_2016.ecsv",
-        "label": "2016 MAGIC",
-        "marker": "--",
-        "color": "steelblue",
-    },
+    }
+    
 ]
 
 fig, ax = plt.subplots()
