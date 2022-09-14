@@ -1,6 +1,9 @@
 # PKS1510_modelling
 Code using `agnpy` for the modelling the FSRQ PKS 1510-1019
 
+#IMP
+Refer to Jupyter Notebooks for the MCMC implementation to the datasets using gammapy. Use the method below when implementing with sherpa. 
+
 ## Basic usage
 Basic functionalities are wrapped via [click](https://click.palletsprojects.com/en/8.0.x/).
 Two commands are available 
@@ -57,3 +60,5 @@ $ python make.py plot --state all
 ```
 you should obtain a plot like this
 ![](results/sed_all_states.png)
+
+
