@@ -1,7 +1,7 @@
 # PKS1510_modelling
 Code using `agnpy` for the modelling the FSRQ PKS 1510-1019
 
-#IMP
+##IMP
 Refer to Jupyter Notebooks for the MCMC implementation to the datasets using gammapy. Use the method below when implementing with sherpa. 
 
 ## Basic usage
